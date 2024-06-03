@@ -1,7 +1,7 @@
 package db
 
 import (
-	"sample-gin-ddd/pkg/usecase/dto"
+	"sample-gin-api/pkg/usecase/dto"
 
 	"gorm.io/gorm"
 )
@@ -17,10 +17,10 @@ func Tx(db *gorm.DB, txFunc func(*gorm.DB) *dto.Dto) (data *dto.Dto) {
 		if p := recover(); p != nil {
 			tx.Rollback()
 			return
-		} else if tx.Commit().Error != nil {
-			data.Error = tx.Commit().Error
-		} else {
-			tx.Commit()
+		}
+		if err := tx.Commit().Error; err != nil {
+			tx.Rollback()
+			data.Error = err
 			return
 		}
 	}()
