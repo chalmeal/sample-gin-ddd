@@ -26,7 +26,7 @@ func (rep *AccountRepositoryImpl) Get(tx *gorm.DB, query interface{}) (*model.Ac
 	var account model.Accounts
 	err := tx.Where(query).First(&account)
 	if err.Error != nil {
-		return &model.Accounts{}, e.GET_TODO_NOT_FOUND
+		return &model.Accounts{}, e.GET_ACCOUNT_NOT_FOUND
 	}
 	return &account, nil
 }
