@@ -6,16 +6,16 @@ import (
 )
 
 type Todos struct {
-	TaskID    uint      `gorm:"primaryKey; autoIncrement" json:"task_id"`
-	AccountID string    `gorm:"type:varchar(50); not null" json:"account_id"`
-	Title     string    `gorm:"type:varchar(100); not null" json:"title"`
-	Detail    string    `gorm:"type:varchar(1000)" json:"detail"`
-	Category  string    `gorm:"type:varchar(20)" json:"category"`
-	Status    string    `gorm:"type:varchar(20); not null" json:"status"`
-	ExpiredAt time.Time `gorm:"type:datetime" json:"expired_at"`
-	CreatedAt time.Time `gorm:"type:datetime; not null" json:"created_at"`
-	UpdatedAt time.Time `gorm:"type:datetime" json:"updated_at"`
-	DeletedAt time.Time `gorm:"type:datetime" json:"deleted_at"`
+	TaskID    uint       `gorm:"primaryKey; autoIncrement" json:"task_id"`
+	AccountID string     `gorm:"type:varchar(50); not null" json:"account_id"`
+	Title     string     `gorm:"type:varchar(100); not null" json:"title"`
+	Detail    string     `gorm:"type:varchar(1000)" json:"detail"`
+	Category  string     `gorm:"type:varchar(20)" json:"category"`
+	Status    string     `gorm:"type:varchar(20); not null" json:"status"`
+	ExpiredAt time.Time  `gorm:"type:datetime" json:"expired_at"`
+	CreatedAt time.Time  `gorm:"type:datetime; not null" json:"created_at"`
+	UpdatedAt time.Time  `gorm:"type:datetime" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"type:datetime" json:"deleted_at"`
 }
 
 func NewTodo() *Todos {
