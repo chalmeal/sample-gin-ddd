@@ -22,7 +22,7 @@ type Accounts struct {
 	Authority string     `gorm:"type:varchar(20); not null" json:"authority"`
 	AuthType  string     `gorm:"type:varchar(20); not null" json:"auth_type"`
 	CreatedAt time.Time  `gorm:"type:datetime; not null" json:"created_at"`
-	UpdatedAt time.Time  `gorm:"type:datetime" json:"updated_at"`
+	UpdatedAt *time.Time `gorm:"type:datetime; autoUpdateTime:false" json:"updated_at"`
 	DeletedAt *time.Time `gorm:"type:datetime" json:"deleted_at"`
 }
 
@@ -122,5 +122,6 @@ func (account *Accounts) Edit(p *EdtAccount) *Accounts {
 		Name:      p.Name,
 		Email:     p.Email,
 		AvatorUrl: p.AvatorUrl,
+		UpdatedAt: util.NowDateTime(),
 	}
 }

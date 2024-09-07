@@ -3,8 +3,8 @@ package support
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"os"
 	e "sample-gin-ddd/pkg/errors"
-	"sample-gin-ddd/pkg/infrastracture/config"
 	"sample-gin-ddd/pkg/model"
 	"time"
 
@@ -36,7 +36,7 @@ func CreateJwt(account *model.Accounts, state string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte(config.GetEnv("JWT_SECRET_KEY")))
+	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 	if err != nil {
 		return "", e.INTERNAL_SERVER_ERROR
 	}

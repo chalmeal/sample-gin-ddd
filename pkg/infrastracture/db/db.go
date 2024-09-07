@@ -19,13 +19,15 @@ func NewDB() *gorm.DB {
 	if err := godotenv.Load("pkg/infrastracture/config/.env"); err != nil {
 		log.Fatal(err)
 	}
+
 	db, err = gorm.Open(mysql.Open(os.Getenv("DB_PATH")))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if os.Getenv("DATA_FIXTURE_ENABLE") != "NONE" {
-		fix := fixture.NewDataFixtures(db)
+	fix := fixture.NewDataFixtures(db)
+
+	if os.Getenv("DATA_FIXTURE_STATUS") == "enable" {
 		fix.DataFixture()
 	}
 

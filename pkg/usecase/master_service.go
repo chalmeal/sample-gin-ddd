@@ -69,7 +69,7 @@ func (master *MasterService) EditAccount(accountId string, param *model.EdtAccou
 	})
 }
 
-// 自身のアカウントを削除します。
+// 自身のアカウントを物理削除します。
 func (master *MasterService) DeleteAccount(accountId string) *dto.Dto {
 	return db.Tx(master.db, func(tx *gorm.DB) *dto.Dto {
 		query := &model.SpecifyAccount{

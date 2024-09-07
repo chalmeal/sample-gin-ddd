@@ -1,7 +1,7 @@
 package db
 
 import (
-	"sample-gin-api/pkg/usecase/dto"
+	"sample-gin-ddd/pkg/usecase/dto"
 
 	"gorm.io/gorm"
 )

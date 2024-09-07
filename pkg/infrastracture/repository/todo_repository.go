@@ -4,13 +4,14 @@ import (
 	"log"
 	e "sample-gin-ddd/pkg/errors"
 	"sample-gin-ddd/pkg/model"
+	"sample-gin-ddd/pkg/util"
 
 	"gorm.io/gorm"
 )
 
 type TodoRepository interface {
 	Get(tx *gorm.DB, query interface{}) (*model.Todos, error)
-	Find(tx *gorm.DB, param interface{}) (*[]model.Todos, error)
+	Find(query *gorm.DB) (*[]model.Todos, error)
 	Save(tx *gorm.DB, param *model.Todos) error
 	Update(tx *gorm.DB, query interface{}, param *model.Todos) error
 	Delete(tx *gorm.DB, query interface{}) error
@@ -31,9 +32,9 @@ func (rep *TodoRepositoryImpl) Get(tx *gorm.DB, query interface{}) (*model.Todos
 	return &todo, nil
 }
 
-func (rep *TodoRepositoryImpl) Find(tx *gorm.DB, query interface{}) (*[]model.Todos, error) {
+func (rep *TodoRepositoryImpl) Find(query *gorm.DB) (*[]model.Todos, error) {
 	var todo []model.Todos
-	err := tx.Where(query).Find(&todo)
+	err := query.Find(&todo)
 	if err.Error != nil {
 		log.Println(err)
 		return &[]model.Todos{}, e.INTERNAL_SERVER_ERROR
@@ -51,7 +52,12 @@ func (rep *TodoRepositoryImpl) Save(tx *gorm.DB, param *model.Todos) error {
 
 func (rep *TodoRepositoryImpl) Update(tx *gorm.DB, query interface{}, param *model.Todos) error {
 	var todo model.Todos
-	if err := tx.Where(query).First(&todo).Updates(param).Error; err != nil {
+	record := tx.Where(query).First(&todo)
+	if record.Error != nil || util.IsEmpty(todo, model.Todos{}) {
+		log.Println(record.Error)
+		return e.GET_TODO_NOT_FOUND
+	}
+	if err := record.Updates(param).Error; err != nil {
 		log.Println(err)
 		return e.INTERNAL_SERVER_ERROR
 	}
@@ -60,7 +66,12 @@ func (rep *TodoRepositoryImpl) Update(tx *gorm.DB, query interface{}, param *mod
 
 func (rep *TodoRepositoryImpl) Delete(tx *gorm.DB, query interface{}) error {
 	var todo model.Todos
-	if err := tx.Where(query).First(&todo).Delete(&todo).Error; err != nil {
+	record := tx.Where(query).First(&todo)
+	if record.Error != nil || util.IsEmpty(todo, model.Todos{}) {
+		log.Println(record.Error)
+		return e.GET_TODO_NOT_FOUND
+	}
+	if err := record.Delete(&todo).Error; err != nil {
 		log.Println(err)
 		return e.INTERNAL_SERVER_ERROR
 	}

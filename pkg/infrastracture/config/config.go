@@ -1,20 +1,11 @@
 package config
 
 import (
-	"log"
 	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/joho/godotenv"
 )
-
-func GetEnv(key string) string {
-	if err := godotenv.Load("pkg/infrastracture/config/.env"); err != nil {
-		log.Fatal(err)
-	}
-	return os.Getenv(key)
-}
 
 type MailConfig struct {
 	HostName string
@@ -25,17 +16,17 @@ type MailConfig struct {
 
 func Mail() *MailConfig {
 	return &MailConfig{
-		HostName: GetEnv("MAIL_HOST_NAME"),
-		Port:     GetEnv("MAIL_PORT"),
-		Username: GetEnv("MAIL_USER"),
-		Password: GetEnv("MAIL_PASSWORD"),
+		HostName: os.Getenv("MAIL_HOST_NAME"),
+		Port:     os.Getenv("MAIL_PORT"),
+		Username: os.Getenv("MAIL_USER"),
+		Password: os.Getenv("MAIL_PASSWORD"),
 	}
 }
 
 func Cors() cors.Config {
 	return cors.Config{
 		AllowOrigins: []string{
-			GetEnv("CORS_AUTH_PORT"),
+			os.Getenv("CORS_AUTH_PORT"),
 		},
 		AllowMethods: []string{
 			"POST",

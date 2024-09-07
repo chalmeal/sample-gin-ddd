@@ -1,17 +1,11 @@
 package db
 
-// WIP
-// 未完成のため利用を推奨しない
-
 import (
-	"fmt"
-	"strings"
+	"gorm.io/gorm"
 )
 
 var (
-	conditions []string
-	values     []string
-	query      string
+	query *gorm.DB
 )
 
 type OrmBuilder struct{}
@@ -20,44 +14,76 @@ func NewOrmRepository() *OrmBuilder {
 	return &OrmBuilder{}
 }
 
-func (orm *OrmBuilder) QueryBuilder() *OrmBuilder {
-	query = ""
-	conditions = []string{}
-	values = []string{}
+func (orm *OrmBuilder) QueryBuilder(tx *gorm.DB) *OrmBuilder {
+	query = tx
 	return orm
 }
 
 func (orm *OrmBuilder) Equal(field string, value string) *OrmBuilder {
-	conditions = append(conditions, fmt.Sprintf("%s = ?", field))
-	values = append(values, value)
+	if value != "" {
+		query = query.Where(field+" = ?", value)
+	}
 	return orm
 }
 
-func (orm *OrmBuilder) Like(field string, value string) *OrmBuilder {
-	conditions = append(conditions, fmt.Sprintf("%s LIKE ?", field))
-	values = append(values, "%"+value+"%")
+func (orm *OrmBuilder) NotEqual(field string, value string) *OrmBuilder {
+	if value != "" {
+		query = query.Where(field+" <> ?", value)
+	}
+	return orm
+}
+
+func (orm *OrmBuilder) In(field string, values []string) *OrmBuilder {
+	if len(values) != 0 {
+		query = query.Where(field+" IN ?", values)
+	}
 	return orm
 }
 
 func (orm *OrmBuilder) Likes(fields []string, value string) *OrmBuilder {
-	like := ""
-	for _, field := range fields {
-		if like != "" {
-			like = like + " OR "
+	if value != "" {
+		for _, field := range fields {
+			query = query.Where(field+" LIKE ?", "%"+value+"%")
 		}
-		like = like + fmt.Sprintf("%s LIKE ?", field)
-		values = append(values, "%"+value+"%")
 	}
-	conditions = append(conditions, like)
 	return orm
 }
 
-func (orm *OrmBuilder) Between(field string) *OrmBuilder {
-	conditions = append(conditions, fmt.Sprintf("%s BETWEEN ? AND ?", field))
+func (orm *OrmBuilder) IsBefore(field string, value string) *OrmBuilder {
+	if value != "" {
+		query = query.Where(field+" >= ?", value)
+	}
 	return orm
 }
 
-func (orm *OrmBuilder) Build() (string, []string) {
-	query = strings.Join(conditions, " AND ")
-	return query, values
+func (orm *OrmBuilder) IsBeforeLess(field string, value string) *OrmBuilder {
+	if value != "" {
+		query = query.Where(field+" > ?", value)
+	}
+	return orm
+}
+
+func (orm *OrmBuilder) IsAfter(field string, value string) *OrmBuilder {
+	if value != "" {
+		query = query.Where(field+" <= ?", value)
+	}
+	return orm
+}
+
+func (orm *OrmBuilder) IsAfterUp(field string, value string) *OrmBuilder {
+	if value != "" {
+		query = query.Where(field+" < ?", value)
+	}
+	return orm
+}
+
+func (orm *OrmBuilder) Between(field string, from string, to string) *OrmBuilder {
+	if from != "" || to != "" {
+		query = query.Where(field+" BETWEEM ? AND ?", from, to)
+	}
+	return orm
+}
+
+func (orm *OrmBuilder) Build() *gorm.DB {
+	return query
 }

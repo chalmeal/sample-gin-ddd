@@ -1,10 +1,10 @@
 package fixture
 
 import (
-	"sample-gin-ddd/pkg/infrastracture/config"
+	"os"
 	"sample-gin-ddd/pkg/infrastracture/security"
 	"sample-gin-ddd/pkg/model"
-	"time"
+	"sample-gin-ddd/pkg/util"
 
 	"gorm.io/gorm"
 )
@@ -22,17 +22,14 @@ func NewDataFixtures(db *gorm.DB) *DataFixtures {
 }
 
 func (fixture *DataFixtures) DataFixture() {
+	if os.Getenv("APP_ENV") == "local" {
+		fixture.drop()
+	}
 	fixture.migration()
 	fixture.create()
 }
 
 func (fixture *DataFixtures) migration() {
-	if config.GetEnv("APP_ENV") == "local" {
-		fixture.db.Migrator().DropTable(
-			model.Accounts{},
-			model.Todos{},
-		)
-	}
 	fixture.db.AutoMigrate(
 		model.Accounts{},
 		model.Todos{},
@@ -40,7 +37,6 @@ func (fixture *DataFixtures) migration() {
 }
 
 func (fixture *DataFixtures) create() {
-
 	// Accounts
 	fixture.db.FirstOrCreate(
 		&model.Accounts{},
@@ -100,7 +96,13 @@ func (fixture *DataFixtures) create() {
 			Detail:    "6/20での打ち合わせに利用する資料を作成する。",
 			Category:  "WORK",
 			Status:    "PUBLIC",
-			ExpiredAt: time.Date(2024, time.June, 15, 0, 0, 0, 0, time.Now().Local().Location()),
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  06,
+				Day:    10,
+				Hour:   12,
+				Minute: 00,
+			}),
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -111,7 +113,7 @@ func (fixture *DataFixtures) create() {
 			Detail:    "たまご、にんじん、牛乳",
 			Category:  "FAMIRY",
 			Status:    "PRIVATE",
-			ExpiredAt: time.Time{},
+			ExpiredAt: nil,
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -122,7 +124,13 @@ func (fixture *DataFixtures) create() {
 			Detail:    "USBメモリ不足のため購入",
 			Category:  "WORK",
 			Status:    "PUBLIC",
-			ExpiredAt: time.Time{},
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  06,
+				Day:    15,
+				Hour:   15,
+				Minute: 30,
+			}),
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -133,7 +141,13 @@ func (fixture *DataFixtures) create() {
 			Detail:    "6/10食事会のお店を探しておく",
 			Category:  "",
 			Status:    "PRIVATE",
-			ExpiredAt: time.Date(2024, time.June, 8, 0, 0, 0, 0, time.Now().Local().Location()),
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  06,
+				Day:    18,
+				Hour:   00,
+				Minute: 00,
+			}),
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -144,7 +158,13 @@ func (fixture *DataFixtures) create() {
 			Detail:    "島田さんの新しいPCについてセットアップのサポートをする。山田さんにセットアップツールについて問い合わせること。",
 			Category:  "WORK",
 			Status:    "PUBLIC",
-			ExpiredAt: time.Date(2024, time.June, 3, 0, 0, 0, 0, time.Now().Local().Location()),
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  07,
+				Day:    01,
+				Hour:   13,
+				Minute: 30,
+			}),
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -155,7 +175,13 @@ func (fixture *DataFixtures) create() {
 			Detail:    "",
 			Category:  "WORK",
 			Status:    "PUBLIC",
-			ExpiredAt: time.Date(2024, time.June, 5, 0, 0, 0, 0, time.Now().Local().Location()),
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  07,
+				Day:    10,
+				Hour:   00,
+				Minute: 00,
+			}),
 		},
 	)
 	fixture.db.FirstOrCreate(
@@ -166,7 +192,20 @@ func (fixture *DataFixtures) create() {
 			Detail:    "こども用の学校で使う文房具を購入しておく",
 			Category:  "FAMIRY",
 			Status:    "PUBLIC",
-			ExpiredAt: time.Date(2024, time.July, 10, 0, 0, 0, 0, time.Now().Local().Location()),
+			ExpiredAt: util.ParseDateTime(&util.DateTime{
+				Year:   2024,
+				Month:  07,
+				Day:    12,
+				Hour:   12,
+				Minute: 00,
+			}),
 		},
+	)
+}
+
+func (fixture *DataFixtures) drop() {
+	fixture.db.Migrator().DropTable(
+		model.Accounts{},
+		model.Todos{},
 	)
 }

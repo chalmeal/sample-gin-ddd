@@ -29,15 +29,13 @@ func NewMasterAdminService() *MasterAdminService {
 // アカウントを検索します。
 func (master *MasterAdminService) FindAccount(param *model.FindAccount) *dto.Dto {
 	return db.Tx(master.db, func(tx *gorm.DB) *dto.Dto {
-		query := &model.Accounts{
-			AccountID: param.AccountID,
-			Name:      param.Name,
-			Authority: param.Authority,
-			AuthType:  param.AuthType,
-		}
-
-		// TODO: 完全一致しか取得できていない
-		ac, err := master.rep.Find(tx, query)
+		query := master.orm.QueryBuilder(tx).
+			Equal("account_id", param.AccountID).
+			Equal("authority", param.Authority).
+			Equal("auth_type", param.AuthType).
+			Likes([]string{"name"}, param.Name).
+			Build()
+		ac, err := master.rep.Find(query)
 		if err != nil {
 			return &dto.Dto{
 				Error: e.INTERNAL_SERVER_ERROR,

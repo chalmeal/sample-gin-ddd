@@ -13,6 +13,7 @@ import (
 
 type TodoService struct {
 	db   *gorm.DB
+	orm  *db.OrmBuilder
 	rep  repository.TodoRepository
 	todo model.Todos
 }
@@ -20,6 +21,7 @@ type TodoService struct {
 func NewTodoService() *TodoService {
 	return &TodoService{
 		db:   db.GetDB(),
+		orm:  db.NewOrmRepository(),
 		rep:  repository.NewTodoRepository(),
 		todo: *model.NewTodo(),
 	}
@@ -48,9 +50,13 @@ func (todo *TodoService) GetTodo(accountId string, id string) *dto.Dto {
 // 自身のTODO一覧を取得します。
 func (todo *TodoService) FindTodos(accountId string, param *model.FindTodo) *dto.Dto {
 	return db.Tx(todo.db, func(tx *gorm.DB) *dto.Dto {
-		query := todo.todo.Find(accountId, param)
-		// TODO: 完全一致でしか検索できていない
-		td, err := todo.rep.Find(tx, query)
+		query := todo.orm.QueryBuilder(tx).
+			Equal("account_id", accountId).
+			Equal("category", param.Category).
+			Equal("status", param.Status).
+			Likes([]string{"title", "detail"}, param.Title).
+			Build()
+		td, err := todo.rep.Find(query)
 		if err != nil {
 			return &dto.Dto{
 				Error: err,
@@ -66,7 +72,7 @@ func (todo *TodoService) FindTodos(accountId string, param *model.FindTodo) *dto
 	})
 }
 
-// 自身のTODOを1つ作成します。
+// 自身のTODOを1つ登録します。
 func (todo *TodoService) RegisterTodo(accountId string, param *model.RegTodo) *dto.Dto {
 	return db.Tx(todo.db, func(tx *gorm.DB) *dto.Dto {
 		reg := todo.todo.Regist(accountId, param)
@@ -103,7 +109,7 @@ func (todo *TodoService) EditTodo(accountId string, param *model.EdtTodo) *dto.D
 	})
 }
 
-// 自身のTODOを削除します。
+// 自身のTODOを物理削除します。
 func (todo *TodoService) DeleteTodo(accountId string, id int) *dto.Dto {
 	return db.Tx(todo.db, func(tx *gorm.DB) *dto.Dto {
 		query := todo.todo.Specify(accountId, id)

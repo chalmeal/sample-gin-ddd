@@ -10,14 +10,13 @@ import (
 )
 
 func init() {
+	if err := godotenv.Load("pkg/infrastracture/config/.env"); err != nil {
+		log.Fatal(err)
+	}
 	db.NewDB()
 }
 
 func main() {
-	if err := godotenv.Load("pkg/infrastracture/config/.env"); err != nil {
-		log.Fatal(err)
-	}
-
 	routes := controller.InitRouter()
 	routes.Run(os.Getenv("SERVER_PORT"))
 }

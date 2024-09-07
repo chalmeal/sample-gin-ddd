@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
+	"os"
 	e "sample-gin-ddd/pkg/errors"
 
 	"sample-gin-ddd/pkg/infrastracture/config"
@@ -33,7 +34,7 @@ func send(p *SendMailParam) error {
 }
 
 func SendRegisterMail(mail string) error {
-	url := config.GetEnv("TEMPORARY_REGISTER_ACCOUNT_BASE_URL") + util.EmailToId(mail)
+	url := os.Getenv("TEMPORARY_REGISTER_ACCOUNT_BASE_URL") + util.EmailToId(mail)
 	param := &SendMailParam{
 		From:    config.MAIL_FROM,
 		To:      []string{mail},
